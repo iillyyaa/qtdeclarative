@@ -383,12 +383,30 @@ void QQuickAnimatedSprite::advance(int frames)
     maybeUpdate();
 }
 
+void QQuickAnimatedSprite::itemChange(ItemChange change, const ItemChangeData &value)
+{
+    Q_D(QQuickAnimatedSprite);
+    switch (change) {
+    case ItemVisibleHasChanged:
+        if (d->m_running && !d->m_paused)
+            // Needed to restart the update/updatePaintNode loop that drives animation updates
+            maybeUpdate();
+        break;
+    default:
+        break;
+    }
+
+    QQuickItem::itemChange(change, value);
+}
+
 void QQuickAnimatedSprite::maybeUpdate()
 {
     QQuickItemPrivate *priv = QQuickItemPrivate::get(this);
     const QLazilyAllocated<QQuickItemPrivate::ExtraData> &extraData = priv->extra;
     if ((extraData.isAllocated() && extraData->effectRefCount > 0) || priv->effectiveVisible)
         update();
+    // Note: when the above conditional doesn't hold, we effectively stop the update/updatePaintNode
+    // animation loop, which needs to be restarted on itemChange(ItemVisibleHasChange, true)
 }
 
 /*!

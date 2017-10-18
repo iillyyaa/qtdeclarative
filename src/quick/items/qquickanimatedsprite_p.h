@@ -167,6 +167,7 @@ private Q_SLOTS:
 
 protected Q_SLOTS:
     void reset();
+    void itemChange(ItemChange, const ItemChangeData &);
 
 protected:
     void componentComplete() Q_DECL_OVERRIDE;
